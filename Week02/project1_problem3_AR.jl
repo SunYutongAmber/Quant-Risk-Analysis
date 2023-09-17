@@ -49,6 +49,35 @@ plot(1:20, acf_ar1, label="ACF", xlabel="Lag", ylabel="Autocorrelation", title="
 plot!(1:20, pacf_ar1, label="PACF")
 
 
+using Distributions  # For generating random numbers
+using Plots
+using StatsBase
+
+# Function to generate AR1 process
+function generate_ar1(n, phi, sigma)
+    ar1_series = zeros(n)
+    ar1_series[1] = randn()
+    for i in 2:n
+        ar1_series[i] = phi * ar1_series[i-1] + sigma * rand(Normal(0,1))
+    end
+    return ar1_series
+end
+
+n = 1000  # Number of time points
+burn_in = 50
+phi = 0.5  # Autoregressive coefficient
+sigma = 0.1  # Standard deviation of the error
+
+# Generate AR1 process
+ar1_series = generate_ar1(n + burn_in, phi, sigma)
+ar1_series = ar1_series[(burn_in + 1):end]  # Remove burn-in period
+
+# Calculate and plot ACF and PACF
+acf_ar1 = autocor(ar1_series, 1:20)
+pacf_ar1 = pacf(ar1_series, 1:20)
+
+plot(1:20, acf_ar1, label="ACF", xlabel="Lag", ylabel="Autocorrelation", title="AR1 ACF and PACF")
+plot!(1:20, pacf_ar1, label="PACF")
 
 
 #AR2
@@ -119,34 +148,4 @@ plot(1:lags, acf_ar3, xlabel="Lag", ylabel="ACF", label="ACF")
 plot(1:lags, pacf_ar3, xlabel="Lag", ylabel="PACF", label="PACF")
 
 
-
-
-
-#MA1
-#y_t = 1.0 + .05*e_t-1 + e, e ~ N(0,.01)
-n = 1000
-burn_in = 50
-y = Vector{Float64}(undef,n)
-
-yt_last = 1.0
-d = Normal(0,0.1)
-e = rand(d,n+burn_in)
-
-for i in 2:(n+burn_in)
-    global yt_last
-    y_t = 1.0 + 0.5*e[i-1] + e[i]
-    if i > burn_in
-        y[i-burn_in] = y_t
-    end
-end
-
-println(@sprintf("Mean and Var of Y: %.2f, %.4f",mean(y),var(y)))
-println(@sprintf("Expected values Y: %.2f, %.4f",1.0,(1+.5^2)*.01))
-
-plot_ts(y,imgName="ma1_acf_pacf.png",title="MA 1")
-
-ma1 = SARIMA(y,order=(0,0,1),include_mean=true)
-
-StateSpaceModels.fit!(ma1)
-print_results(ma1)
 
