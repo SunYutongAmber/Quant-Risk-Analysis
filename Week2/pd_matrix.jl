@@ -1,4 +1,15 @@
 # Cholesky that assumes PD matrix
+#returns_df = CSV.read("/Users/sunyutong/Desktop/Fintech 545 Quant Risk Analysis/Project2/DailyReturn.csv", DataFrame)
+# Load the daily returns from the CSV file
+returns_df = CSV.read("/Users/sunyutong/Desktop/Fintech 545 Quant Risk Analysis/Project2/DailyPrices.csv.csv", DataFrame) 
+
+# Calculate the covariance matrix using the returns data
+cov_matrix_standard = cov(Matrix(returns_df[:, 2:end]))
+
+# Calculate the correlation matrix from the covariance matrix
+correlation_matrix_standard = generate_correlation_matrix(cov_matrix_standard)
+a = correlation_matrix_standard 
+
 function chol_pd!(root,a)
     n = size(a,1)
     #Initialize the root matrix with 0 values
@@ -155,8 +166,8 @@ function compare_frobenius_norm(n)
     println("Frobenius norm difference for near_psd(): $norm_near_psd")
 end
 
-# Set matrix size
-n = 500
+function chol_pd!(root,a)
+n = 
 
 # Compare runtimes
 compare_runtimes(n)
